@@ -53,6 +53,13 @@
         #open-all:hover {
             background-color: #2d8e47;
         }
+        #clear-storage {
+            background-color: #ea4335;
+            float: right;
+        }
+        #clear-storage:hover {
+            background-color: #d33828;
+        }
     </style>
 </head>
 <body>
@@ -71,12 +78,52 @@
     <div id="buttons-container">
         <button onclick="generateSearchLinks()">Generate Search Links</button>
         <button id="open-all" onclick="openAllLinks()" style="display: none;">Open All Links</button>
+        <button id="clear-storage" onclick="clearStorage()">Clear Saved Data</button>
     </div>
     
     <div id="results"></div>
 
     <script>
         let searchUrls = [];
+
+        // Load saved data on page load
+        window.onload = function() {
+            const savedSites = localStorage.getItem('sites');
+            const savedQuery = localStorage.getItem('query');
+            
+            if (savedSites) {
+                document.getElementById('sites').value = savedSites;
+            }
+            if (savedQuery) {
+                document.getElementById('query').value = savedQuery;
+                generateSearchLinks(); // Automatically generate links with saved data
+            }
+        };
+
+        // Save data whenever it changes
+        document.getElementById('sites').addEventListener('input', function() {
+            localStorage.setItem('sites', this.value);
+        });
+
+        document.getElementById('query').addEventListener('input', function() {
+            localStorage.setItem('query', this.value);
+        });
+
+        // Add enter key handler for search query
+        document.getElementById('query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateSearchLinks();
+            }
+        });
+
+        function clearStorage() {
+            localStorage.clear();
+            document.getElementById('sites').value = '';
+            document.getElementById('query').value = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('open-all').style.display = 'none';
+            searchUrls = [];
+        }
 
         function generateSearchLinks() {
             const sites = document.getElementById('sites').value
@@ -111,13 +158,12 @@
                 link.href = googleUrl;
                 link.className = 'search-link';
                 link.target = '_blank';
-                link.rel = 'noopener noreferrer';  // Security best practice for target="_blank"
+                link.rel = 'noopener noreferrer';
                 link.textContent = searchQuery;
                 
                 resultsDiv.appendChild(link);
             });
 
-            // Show the Open All button if we have links
             if (searchUrls.length > 0) {
                 openAllButton.style.display = 'inline-block';
             }
