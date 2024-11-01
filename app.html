@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-site Google Search Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 8px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #3267d6;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .search-link {
+            display: block;
+            margin: 10px 0;
+            color: #1a0dab;
+            text-decoration: none;
+        }
+        .search-link:hover {
+            text-decoration: underline;
+        }
+        #buttons-container {
+            margin-top: 20px;
+        }
+        #open-all {
+            background-color: #34a853;
+        }
+        #open-all:hover {
+            background-color: #2d8e47;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-site Google Search Generator</h1>
+    
+    <div>
+        <label for="sites">Enter websites (one per line):</label>
+        <textarea id="sites" placeholder="wsj.com&#10;nytimes.com&#10;cnn.com"></textarea>
+    </div>
+    
+    <div>
+        <label for="query">Enter search query:</label>
+        <input type="text" id="query" placeholder="Enter your search term">
+    </div>
+    
+    <div id="buttons-container">
+        <button onclick="generateSearchLinks()">Generate Search Links</button>
+        <button id="open-all" onclick="openAllLinks()" style="display: none;">Open All Links</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        let searchUrls = [];
+
+        function generateSearchLinks() {
+            const sites = document.getElementById('sites').value
+                .split('\n')
+                .map(site => site.trim())
+                .filter(site => site.length > 0);
+            
+            const query = document.getElementById('query').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const openAllButton = document.getElementById('open-all');
+            resultsDiv.innerHTML = '';
+            searchUrls = [];
+            openAllButton.style.display = 'none';
+
+            if (!query) {
+                resultsDiv.innerHTML = '<p style="color: red;">Please enter a search query</p>';
+                return;
+            }
+
+            if (sites.length === 0) {
+                resultsDiv.innerHTML = '<p style="color: red;">Please enter at least one website</p>';
+                return;
+            }
+
+            sites.forEach(site => {
+                const searchQuery = `${query} site:${site}`;
+                const encodedQuery = encodeURIComponent(searchQuery);
+                const googleUrl = `https://www.google.com/search?q=${encodedQuery}`;
+                searchUrls.push(googleUrl);
+                
+                const link = document.createElement('a');
+                link.href = googleUrl;
+                link.className = 'search-link';
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';  // Security best practice for target="_blank"
+                link.textContent = searchQuery;
+                
+                resultsDiv.appendChild(link);
+            });
+
+            // Show the Open All button if we have links
+            if (searchUrls.length > 0) {
+                openAllButton.style.display = 'inline-block';
+            }
+        }
+
+        function openAllLinks() {
+            searchUrls.forEach(url => {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            });
+        }
+    </script>
+</body>
+</html>
